@@ -5,7 +5,10 @@ extern crate thyme;
 
 use glium::glutin;
 use glium::glutin::event;
-use log::{info, warn};
+use log::info;
+
+use crate::core::DebugLayer;
+use crate::core::Layer;
 
 pub struct Game {}
 
@@ -65,7 +68,6 @@ impl Game {
         let wb = glium::glutin::window::WindowBuilder::new().with_title("cyclops");
         let cb = glium::glutin::ContextBuilder::new();
         let display = glium::Display::new(wb, cb, &event_loop).unwrap();
-        let handler = DebugEventHandler {};
 
         // create thyme backend
         let mut io = thyme::WinitIo::new(&event_loop, window_size.into());
@@ -81,6 +83,8 @@ impl Game {
         context_builder.register_font("roboto", font_src.to_vec());
         let mut context = context_builder.build(&mut renderer, &mut io).unwrap();
 
+        let debug_layer = DebugLayer::new();
+        debug_layer.on_attach();
         info!("Starting event loop");
         event_loop.run(move |ev, _, control_flow| match ev {
             event::Event::MainEventsCleared => {
@@ -90,7 +94,7 @@ impl Game {
                 target.clear_color(0.0, 0.0, 0.0, 0.0);
 
                 let mut ui = context.create_frame();
-                ui.window()
+
                 ui.window("window", |ui| {
                     ui.gap(20.0);
                     ui.button("label", "Hello, World!");
